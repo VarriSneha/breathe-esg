@@ -1,4 +1,4 @@
-# Data Model — Breathe ESG Emissions Ingestion Platform
+# Data Model : Breathe ESG Emissions Ingestion Platform
 
 ## Overview
 
@@ -10,7 +10,7 @@ The model is designed around four concerns: multi-tenancy, source traceability, 
 
 ### `ingestions`
 
-Represents a single upload event from a client. The unit of provenance — every emission record traces back to exactly one ingestion.
+Represents a single upload event from a client. The unit of provenance  every emission record traces back to exactly one ingestion.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -26,7 +26,7 @@ Represents a single upload event from a client. The unit of provenance — every
 | created_at | timestamptz | When the upload arrived |
 | completed_at | timestamptz | When parsing finished (null during processing) |
 
-**Why**: An ingestion is not just a log entry — it's the unit analysts use to batch-review data. "What came in from the SAP export on March 15?" is a natural question. The ingestion row answers it.
+**Why**: An ingestion is not just a log entry  it's the unit analysts use to batch-review data. "What came in from the SAP export on March 15?" is a natural question. The ingestion row answers it.
 
 ---
 
@@ -79,7 +79,7 @@ The normalized, auditable unit of emissions data. Each row represents one discre
 
 **Why `source_ref` is a string not FK**: Source systems are heterogeneous. SAP document numbers, utility meter IDs, and Concur trip IDs live in different namespaces. A composite string (`SAP:4900012301:1000`) is more flexible and still unique enough for deduplication.
 
-**Why `activity_date` not `billing_date`**: Billing periods (utility) and posting dates (SAP) don't align to calendar months. For emissions aggregation by period, you need the activity date — the date the energy was actually consumed, not when it was invoiced. For utilities with billing period ranges, we use the midpoint.
+**Why `activity_date` not `billing_date`**: Billing periods (utility) and posting dates (SAP) don't align to calendar months. For emissions aggregation by period, you need the activity date  the date the energy was actually consumed, not when it was invoiced. For utilities with billing period ranges, we use the midpoint.
 
 ---
 
@@ -97,7 +97,7 @@ Immutable record of every state change to every record and every ingestion event
 | previous_value | text | Prior state (for status changes) |
 | new_value | text | New state |
 | note | text | Analyst comment at time of action |
-| created_at | timestamptz | Immutable — no updated_at |
+| created_at | timestamptz | Immutable - no updated_at |
 
 **Why**: Auditors need to answer: "Who approved this, when, and why?" Without an audit trail, the answer is always "we don't know." Audit log rows are never updated or deleted.
 
@@ -138,7 +138,7 @@ All factors are stored on the record at time of ingestion, with an explicit cita
 - **Rail**: DESNZ 2023 National Rail
 - **Ground transport/car rental**: DESNZ 2023
 
-Factors are embedded at parse time, not looked up at query time. This ensures historical records remain stable even when factors are updated — an audit requirement.
+Factors are embedded at parse time, not looked up at query time. This ensures historical records remain stable even when factors are updated an audit requirement.
 
 ---
 
