@@ -1,4 +1,4 @@
-# Decisions — Breathe ESG Emissions Ingestion Platform
+# Decisions : Breathe ESG Emissions Ingestion Platform
 
 Every ambiguity resolved, what was chosen, and why.
 
@@ -8,9 +8,9 @@ Every ambiguity resolved, what was chosen, and why.
 
 **The assignment specified Django. I chose Express.**
 
-The monorepo environment was pre-configured for Node.js/TypeScript with Express, Drizzle ORM, and React. Rebuilding this in Django/Python would have taken 1 of my 4 days on scaffolding alone. The business logic — parsing, normalization, emission factors, the review workflow — is identical regardless of the framework.
+The monorepo environment was pre-configured for Node.js/TypeScript with Express, Drizzle ORM, and React. Rebuilding this in Django/Python would have taken 1 of my 4 days on scaffolding alone. The business logic  parsing, normalization, emission factors, the review workflow  is identical regardless of the framework.
 
-**What I'd ask the PM**: "Is there a team constraint I'm not seeing — existing Django infrastructure, required Python ecosystem, or a preference we should align with?" If yes, I'd port the data model and parsers to Django. The model is the hard part; Django is a known quantity.
+**What I'd ask the PM**: "Is there a team constraint I'm not seeing  existing Django infrastructure, required Python ecosystem, or a preference we should align with?" If yes, I'd port the data model and parsers to Django. The model is the hard part; Django is a known quantity.
 
 **What would break in a real deployment**: The Drizzle schema would need to be translated to Django models. The OpenAPI-first contract-first approach would carry over (DRF + drf-spectacular generates equivalent patterns).
 
@@ -24,7 +24,7 @@ The monorepo environment was pre-configured for Node.js/TypeScript with Express,
 - **BAPI (RFC)**: Remote Function Call. Requires SAP RFC library (`pyrfc` or `node-rfc`). Platform-specific native dependencies, needs VPN/direct SAP access.
 - **Flat file export (MM60/ME2M/FAGLL03)**: Downloaded from SAP GUI transaction → CSV or delimited text. Most enterprises already do this. Zero integration dependencies. Realistic to implement without SAP access.
 
-**I chose flat file (MM60-style)** for fuel/procurement. Justification: every SAP customer can export a flat file. The schema — plant code, material code, quantity, unit, posting date, document number — is stable across SAP versions. The parsing complexity is real (German column headers, German number formats, multiple date formats) and I handled all of it.
+**I chose flat file (MM60-style)** for fuel/procurement. Justification: every SAP customer can export a flat file. The schema  plant code, material code, quantity, unit, posting date, document number  is stable across SAP versions. The parsing complexity is real (German column headers, German number formats, multiple date formats) and I handled all of it.
 
 **What I ignored**: Material-to-fuel mapping beyond the top 6 fuel codes (diesel, petrol, natural gas, LPG, HFO, coal). A real deployment would need a full MARA (material master) lookup table for the client's plant. I stub unknowns with a flag and a default factor.
 
@@ -35,7 +35,7 @@ The monorepo environment was pre-configured for Node.js/TypeScript with Express,
 ## Utility: Portal CSV over PDF parsing or API
 
 **Options considered**:
-- **PDF bill parsing**: Requires OCR or PDF extraction (pdfplumber, Camelot). Utility PDF formats vary wildly — not just per utility, but per billing tier and tariff type. Fragile, high maintenance.
+- **PDF bill parsing**: Requires OCR or PDF extraction (pdfplumber, Camelot). Utility PDF formats vary wildly  not just per utility, but per billing tier and tariff type. Fragile, high maintenance.
 - **Utility API (Green Button, ESPI)**: Standard exists in the US (EPRI Green Button Connect), but adoption is inconsistent. UK utilities (EDF, British Gas) don't expose a public developer API for commercial accounts without bespoke integration agreements.
 - **Portal CSV export**: Every major utility portal (EDF Business, British Gas for Business, ComEd, National Grid) has a CSV download for billing history. Format is relatively consistent: account number, meter ID, billing period, kWh, cost.
 
@@ -58,9 +58,9 @@ Billing period alignment: utility bills don't follow calendar months. I handle t
 
 **Key design decision**: When only airport codes are provided (no distance), I compute great-circle distance using a lookup table of 30+ major airports. This covers LHR, JFK, CDG, FRA, DXB, SIN, etc. Where airport codes are unknown, I apply a "distance_estimated" flag and a 1000km fallback (medium-haul assumption), which is conservative and surfaced to the analyst.
 
-**Class of service**: Economy, premium economy, business, first — each has materially different emission factors (economy ≈ 0.155, business ≈ 0.429 kgCO2e/km). The factor difference between economy and business class is a factor of 2.8x, so getting this right matters. I parse cabin class from common labels (Y/W/J/F codes and natural language).
+**Class of service**: Economy, premium economy, business, first  each has materially different emission factors (economy ≈ 0.155, business ≈ 0.429 kgCO2e/km). The factor difference between economy and business class is a factor of 2.8x, so getting this right matters. I parse cabin class from common labels (Y/W/J/F codes and natural language).
 
-**Radiative Forcing Index (RFI)**: I apply RFI 1.9x to all flight emission factors. RFI accounts for the additional warming from contrails and cirrus cloud formation at altitude. DESNZ 2023 methodology includes this. Some clients exclude it — this would be a configuration option in a production system.
+**Radiative Forcing Index (RFI)**: I apply RFI 1.9x to all flight emission factors. RFI accounts for the additional warming from contrails and cirrus cloud formation at altitude. DESNZ 2023 methodology includes this. Some clients exclude it  this would be a configuration option in a production system.
 
 ---
 
@@ -74,7 +74,7 @@ Billing period alignment: utility bills don't follow calendar months. I handle t
 
 **Transition rules**:
 - Approved records cannot be flagged (locked for audit)
-- Approved records can be rejected (if an error is discovered post-approval — this should be exceptional)
+- Approved records can be rejected (if an error is discovered post-approval  this should be exceptional)
 - All other transitions are permitted
 
 ---
@@ -87,7 +87,7 @@ The system generates suspicious flags at parse time:
 - `unknown_material_code`: SAP material code not in the fuel lookup table
 - `long_billing_period`: utility billing period >40 days
 - `distance_estimated`: flight distance was calculated from airport codes, not provided
-- `duplicate_source_ref`: same source reference appears twice (not yet implemented — see TRADEOFFS.md)
+- `duplicate_source_ref`: same source reference appears twice (not yet implemented  see TRADEOFFS.md)
 - `zero_consumption`: utility meter reads zero (may be legitimate or may be an export error)
 - `inverted_dates`: billing period end is before start
 
@@ -109,4 +109,4 @@ The system generates suspicious flags at parse time:
 
 **Why**: Auth systems (JWT, OAuth, sessions) add meaningful complexity for zero prototype value. The review workflow has an `reviewedBy` free-text field so analyst identity is captured in the audit trail. A production system would replace this with authenticated user context.
 
-**What would I add**: Clerk Auth (per the available integrations) with role-based access — analyst vs. admin vs. read-only. Scope approval would require analyst role; audit log is read-only for all.
+**What would I add**: Clerk Auth (per the available integrations) with role-based access  analyst vs. admin vs. read-only. Scope approval would require analyst role; audit log is read-only for all.
