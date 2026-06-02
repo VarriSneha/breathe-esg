@@ -14,7 +14,7 @@ Deduplication requires a decision about what "duplicate" means  and that decisio
 
 Getting this wrong (e.g., automatically overwriting an approved record with a re-upload) would be an audit integrity failure. The safe default is: create a new ingestion, let the analyst see both, and decide.
 
-**What production needs**: A deduplication policy per source type, configurable per client. UI showing "this source_ref was previously ingested in Ingestion #X — override?" The data model already supports this (source_ref is indexed-friendly), so adding the check is a contained change.
+**What production needs**: A deduplication policy per source type, configurable per client. UI showing "this source_ref was previously ingested in Ingestion #X  override?" The data model already supports this (source_ref is indexed-friendly), so adding the check is a contained change.
 
 ---
 
@@ -42,6 +42,6 @@ This is a data governance problem, not an engineering problem. The decision of w
 
 More practically: recalculating approved records requires a migration strategy, a new audit trail event type, and potentially re-opening records the analyst signed off on. Without knowing the client's auditor requirements, implementing this would be guessing at a standard.
 
-**What the data model enables**: `emission_factor` and `emission_factor_source` are stored per record, not looked up at query time. This means historical records are stable — the factor used is always retrievable. Adding a "recalculate with new factors" batch job is a contained operation once the policy is defined.
+**What the data model enables**: `emission_factor` and `emission_factor_source` are stored per record, not looked up at query time. This means historical records are stable  the factor used is always retrievable. Adding a "recalculate with new factors" batch job is a contained operation once the policy is defined.
 
 **What I'd ask the PM**: "When DESNZ updates, does the client want us to recalculate historical records, or are those locked at the factor vintage in effect at ingestion time? What does their auditor say?"
