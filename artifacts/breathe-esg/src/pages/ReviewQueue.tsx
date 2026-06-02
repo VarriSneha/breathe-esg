@@ -3,7 +3,7 @@ import { formatCo2e, formatDate, formatNumber } from "@/lib/formatters";
 import { Link, useLocation } from "wouter";
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Check, AlertTriangle, X, CheckSquare, Search, Filter } from "lucide-react";
+import { Check, AlertTriangle, X, CheckSquare, Search, Filter, Download } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 
@@ -73,6 +73,34 @@ export default function ReviewQueue() {
   const allSelected = pageData?.records?.length && selectedIds.size === pageData.records.length;
   const someSelected = selectedIds.size > 0 && !allSelected;
 
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExport = async () => {
+    setIsExporting(true);
+    try {
+      const params = new URLSearchParams();
+      if (statusFilter) params.set("status", statusFilter);
+      if (scopeFilter) params.set("scope", scopeFilter);
+      params.set("pageSize", "10000");
+      const res = await fetch(`/api/records/export?${params.toString()}`);
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `breathe-esg-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast({ title: "Export downloaded", description: `${pageData?.total ?? 0} records exported with scope summary.` });
+    } catch {
+      toast({ title: "Export failed", description: "Could not download the CSV.", variant: "destructive" });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6 h-[calc(100vh-6rem)] flex flex-col">
       <header className="flex justify-between items-end shrink-0">
@@ -110,14 +138,29 @@ export default function ReviewQueue() {
             <option value="scope2">Scope 2</option>
             <option value="scope3">Scope 3</option>
           </select>
+
+          <span className="text-xs text-muted-foreground border-l border-border pl-3">
+            {pageData?.total ?? "…"} records
+          </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {selectedIds.size > 0 && (
             <span className="text-sm font-medium text-primary bg-primary/10 px-2 py-1 rounded">
               {selectedIds.size} selected
             </span>
           )}
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={handleExport}
+            disabled={isExporting || !pageData?.total}
+            title="Export current filter as CSV with scope summary"
+          >
+            <Download className="w-4 h-4" />
+            {isExporting ? "Exporting…" : "Export CSV"}
+          </Button>
           <Button 
             variant="default" 
             size="sm" 
