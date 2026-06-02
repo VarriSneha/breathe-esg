@@ -1,0 +1,15 @@
+TripId,EmployeeName,TravelDate,ExpenseType,Origin,Destination,DistanceKm,Nights,Class,Vendor,Amount,Currency
+MCG-001,Sarah Chen,2024-01-08,Air,LHR,JFK,,0,Economy,British Airways,850.00,GBP
+MCG-002,James Park,2024-01-15,Air,LHR,SIN,,0,Business,Singapore Airlines,4200.00,GBP
+MCG-003,James Park,2024-01-15,Hotel,,,0,3,,,320.00,SGD
+MCG-004,Marie Dubois,2024-02-05,Air,CDG,JFK,,0,Economy,Air France,920.00,EUR
+MCG-005,Tom Bradley,2024-02-12,Rail,London,Paris,,0,,,180.00,GBP
+MCG-006,Lisa Okonkwo,2024-03-01,Air,MAN,DXB,,0,Economy,Emirates,640.00,GBP
+MCG-007,David Chen,2024-03-10,Air,JFK,LHR,,0,First,American Airlines,8500.00,USD
+MCG-008,David Chen,2024-03-10,Hotel,New York,,,7,,,3200.00,USD
+MCG-009,Priya Nair,2024-03-18,Air,LHR,BOM,,0,Economy,British Airways,780.00,GBP
+MCG-010,Priya Nair,2024-03-18,Hotel,,,0,4,,,480.00,USD
+MCG-011,Tom Bradley,2024-04-02,Air,LHR,JFK,,0,Economy,Virgin Atlantic,760.00,GBP
+MCG-012,Sarah Chen,2024-04-08,Ground,London,Heathrow,35,0,,,42.00,GBP
+MCG-013,James Park,2024-04-15,Air,SIN,LHR,,0,Business,Singapore Airlines,4100.00,SGD
+MCG-014,Marie Dubois,2024-04-20,Rail,Paris,Amsterdam,,0,,,95.00,EUR

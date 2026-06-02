@@ -1,7 +1,7 @@
 import { useListIngestions } from "@workspace/api-client-react";
 import { formatDate, formatNumber } from "@/lib/formatters";
 import { Link } from "wouter";
-import { FileUp, UploadCloud, AlertCircle, CheckCircle2, Loader2, ArrowRight } from "lucide-react";
+import { FileUp, UploadCloud, AlertCircle, CheckCircle2, Loader2, ArrowRight, Download } from "lucide-react";
 import { useState, useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -110,6 +110,24 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
+const SAMPLE_FILES: Record<"sap" | "utility" | "travel", { filename: string; label: string; hint: string }> = {
+  sap: {
+    filename: "sap-sample.csv",
+    label: "SAP Fuel/Procurement (CSV)",
+    hint: "MM60-style export — semicolon delimited, German column names, multi-plant",
+  },
+  utility: {
+    filename: "utility-sample.csv",
+    label: "Utility Electricity (CSV)",
+    hint: "Portal export — meter ID, billing period, kWh, country for grid EF selection",
+  },
+  travel: {
+    filename: "travel-sample.csv",
+    label: "Concur Travel (CSV)",
+    hint: "Concur-style trip export — air, hotel, rail, ground; class of service included",
+  },
+};
+
 function UploadDialog({ onComplete }: { onComplete: () => void }) {
   const [open, setOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -126,7 +144,7 @@ function UploadDialog({ onComplete }: { onComplete: () => void }) {
     const file = fileInputRef.current.files[0];
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("clientName", clientName || "Acme Corp"); // Default for demo
+    formData.append("clientName", clientName || "Acme Corp");
 
     try {
       const response = await fetch(`/api/ingestions/${sourceType}`, {
@@ -146,6 +164,8 @@ function UploadDialog({ onComplete }: { onComplete: () => void }) {
     }
   };
 
+  const sample = SAMPLE_FILES[sourceType];
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -154,25 +174,40 @@ function UploadDialog({ onComplete }: { onComplete: () => void }) {
           New Ingestion
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[460px]">
         <DialogHeader>
           <DialogTitle>Upload Raw Data</DialogTitle>
           <DialogDescription>
             Select a source type and upload the flat file export for processing.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleUpload} className="space-y-6 pt-4">
+        <form onSubmit={handleUpload} className="space-y-5 pt-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Source Type</label>
             <select 
               value={sourceType} 
-              onChange={(e) => setSourceType(e.target.value as any)}
-              className="w-full p-2 border border-input rounded-md bg-background"
+              onChange={(e) => setSourceType(e.target.value as "sap" | "utility" | "travel")}
+              className="w-full p-2 border border-input rounded-md bg-background text-sm"
             >
               <option value="sap">SAP Fuel/Procurement (CSV)</option>
               <option value="utility">Utility Electricity (CSV)</option>
               <option value="travel">Concur Travel (CSV)</option>
             </select>
+          </div>
+
+          <div className="rounded-md border border-border bg-muted/30 p-3 flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-foreground">Sample file available</p>
+              <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{sample.hint}</p>
+            </div>
+            <a
+              href={`/samples/${sample.filename}`}
+              download={sample.filename}
+              className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 border border-primary/30 rounded px-2.5 py-1.5 bg-primary/5 hover:bg-primary/10 transition-colors"
+            >
+              <Download className="w-3 h-3" />
+              Download
+            </a>
           </div>
           
           <div className="space-y-2">
@@ -182,25 +217,25 @@ function UploadDialog({ onComplete }: { onComplete: () => void }) {
               required
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
-              placeholder="e.g. Acme Corp"
-              className="w-full p-2 border border-input rounded-md bg-background"
+              placeholder="e.g. Meridian Energy Group"
+              className="w-full p-2 border border-input rounded-md bg-background text-sm"
             />
           </div>
 
           <div className="space-y-2">
             <label className="text-sm font-medium">File</label>
-            <div className="border-2 border-dashed border-input rounded-md p-6 flex flex-col items-center justify-center bg-muted/20">
+            <div className="border-2 border-dashed border-input rounded-md p-5 flex flex-col items-center justify-center bg-muted/20">
               <input 
                 type="file" 
                 required
                 accept=".csv"
                 ref={fileInputRef}
-                className="w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+                className="w-full text-sm text-muted-foreground file:mr-4 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="flex justify-end gap-3 pt-1">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
             <Button type="submit" disabled={isUploading}>
               {isUploading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
