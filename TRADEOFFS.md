@@ -1,4 +1,4 @@
-# Tradeoffs — Things Deliberately Not Built
+# Tradeoffs - Things Deliberately Not Built
 
 Three things I chose not to build, and why.
 
@@ -10,7 +10,7 @@ Three things I chose not to build, and why.
 
 **Why I didn't build it**:
 
-Deduplication requires a decision about what "duplicate" means — and that decision is domain-specific in ways that need PM input. For SAP: does re-uploading the same document number mean replace-in-place or flag-and-hold? For utility: does an overlapping billing period mean the vendor corrected an error, or the analyst uploaded the wrong file? For travel: Concur allows expense report amendments, so the same trip ID can legitimately appear twice with different amounts.
+Deduplication requires a decision about what "duplicate" means  and that decision is domain-specific in ways that need PM input. For SAP: does re-uploading the same document number mean replace-in-place or flag-and-hold? For utility: does an overlapping billing period mean the vendor corrected an error, or the analyst uploaded the wrong file? For travel: Concur allows expense report amendments, so the same trip ID can legitimately appear twice with different amounts.
 
 Getting this wrong (e.g., automatically overwriting an approved record with a re-upload) would be an audit integrity failure. The safe default is: create a new ingestion, let the analyst see both, and decide.
 
@@ -24,7 +24,7 @@ Getting this wrong (e.g., automatically overwriting an approved record with a re
 
 **Why I didn't build it**:
 
-The assignment is about ingestion and review, not reporting. The priority is: get data in cleanly, get analysts to sign off, lock for audit. Trend analysis is downstream of having reliable, approved data. Building charts before the data quality layer is solid is backwards — you'd be visualizing noise.
+The assignment is about ingestion and review, not reporting. The priority is: get data in cleanly, get analysts to sign off, lock for audit. Trend analysis is downstream of having reliable, approved data. Building charts before the data quality layer is solid is backwards  you'd be visualizing noise.
 
 The dashboard summary (approved CO2e totals by scope) gives analysts the aggregate they need during review. A reporting layer is a separate product concern.
 
@@ -38,7 +38,7 @@ The dashboard summary (approved CO2e totals by scope) gives analysts the aggrega
 
 **Why I didn't build it**:
 
-This is a data governance problem, not an engineering problem. The decision of whether to retroactively recalculate approved records — and whether that triggers a new audit cycle — is something that needs to be agreed with auditors before you implement it. Different carbon accounting standards (GHG Protocol, ISO 14064, CDP) have different rules about factor vintage.
+This is a data governance problem, not an engineering problem. The decision of whether to retroactively recalculate approved records  and whether that triggers a new audit cycle is something that needs to be agreed with auditors before you implement it. Different carbon accounting standards (GHG Protocol, ISO 14064, CDP) have different rules about factor vintage.
 
 More practically: recalculating approved records requires a migration strategy, a new audit trail event type, and potentially re-opening records the analyst signed off on. Without knowing the client's auditor requirements, implementing this would be guessing at a standard.
 
